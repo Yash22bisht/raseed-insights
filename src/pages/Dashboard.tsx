@@ -17,6 +17,7 @@ import {
   PieChart,
   BarChart3,
   User,
+  MessageSquare,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -525,15 +526,15 @@ export default function Dashboard() {
             <span className="text-xs">Analytics</span>
           </Button>
 
-          {/* Profile */}
+          {/* AI Chat */}
           <Button
             variant="ghost"
             size="sm"
             className="flex-col h-auto py-2 px-4 rounded-2xl hover:bg-muted/50 transition-all"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/ai-chat")}
           >
-            <User className="w-5 h-5 mb-1" />
-            <span className="text-xs">Profile</span>
+            <MessageSquare className="w-5 h-5 mb-1" />
+            <span className="text-xs">AI Chat</span>
           </Button>
         </div>
       </div>
