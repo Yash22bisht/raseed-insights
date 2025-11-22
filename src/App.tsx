@@ -11,6 +11,8 @@ import Processing from "./pages/Processing";
 import ReceiptDetail from "./pages/ReceiptDetail";
 import Receipts from "./pages/Receipts";
 import AIChat from "./pages/AIChat";
+import Profile from "./pages/Profile";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
             <Route path="/receipt/:id" element={<ReceiptDetail />} />
             <Route path="/receipts" element={<Receipts />} />
             <Route path="/ai-chat" element={<AIChat />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/analytics" element={<Analytics />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
