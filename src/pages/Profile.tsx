@@ -70,7 +70,7 @@ const Profile = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20 border-4 border-primary/20">
-                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Yash" />
+                <AvatarImage src="/images/Screenshot 2025-11-22 200157.png" />
                 <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-2xl">
                   Y
                 </AvatarFallback>
