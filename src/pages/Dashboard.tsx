@@ -467,15 +467,15 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Floating Action Button - Enhanced */}
+      {/* Floating AI Chat Button */}
       <div className="fixed bottom-24 right-6 z-50">
         <Button
           size="lg"
-          onClick={() => navigate("/add-receipt")}
-          className="relative h-16 w-16 rounded-full bg-gradient-to-r from-primary via-violet-600 to-secondary shadow-2xl hover:shadow-primary/50 transition-all hover:scale-110 border-0 group overflow-hidden"
+          onClick={() => navigate("/ai-chat")}
+          className="relative h-16 w-16 rounded-full bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 shadow-2xl hover:shadow-violet-500/50 transition-all hover:scale-110 border-0 group overflow-hidden"
         >
           <div className="absolute inset-0 bg-white/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
-          <Plus className="w-8 h-8 relative z-10 group-hover:rotate-90 transition-transform duration-300" />
+          <MessageSquare className="w-8 h-8 relative z-10 group-hover:scale-110 transition-transform duration-300" />
         </Button>
       </div>
 
@@ -526,15 +526,15 @@ export default function Dashboard() {
             <span className="text-xs">Analytics</span>
           </Button>
 
-          {/* AI Chat */}
-          <Button
+            {/*Profile*/}
+            <Button
             variant="ghost"
             size="sm"
             className="flex-col h-auto py-2 px-4 rounded-2xl hover:bg-muted/50 transition-all"
-            onClick={() => navigate("/ai-chat")}
+            onClick={() => navigate("/profile")}
           >
             <MessageSquare className="w-5 h-5 mb-1" />
-            <span className="text-xs">AI Chat</span>
+            <span className="text-xs">Profile</span>
           </Button>
         </div>
       </div>
