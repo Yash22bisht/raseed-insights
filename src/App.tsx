@@ -10,6 +10,7 @@ import AddReceipt from "./pages/AddReceipt";
 import Processing from "./pages/Processing";
 import ReceiptDetail from "./pages/ReceiptDetail";
 import Receipts from "./pages/Receipts";
+import AIChat from "./pages/AIChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/processing" element={<Processing />} />
             <Route path="/receipt/:id" element={<ReceiptDetail />} />
             <Route path="/receipts" element={<Receipts />} />
+            <Route path="/ai-chat" element={<AIChat />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
