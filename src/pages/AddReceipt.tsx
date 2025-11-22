@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, Mail, Wallet, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
+import { CameraCapture } from "@/components/camera-capture";
 
 const inputMethods = [
   {
@@ -36,17 +38,56 @@ const inputMethods = [
 
 export default function AddReceipt() {
   const navigate = useNavigate();
+  const [showCamera, setShowCamera] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleMethodClick = (action: string) => {
-    // In a real app, this would handle different input methods
-    // For now, navigate to a processing screen
-    navigate("/processing");
+    switch (action) {
+      case "scan":
+        setShowCamera(true);
+        break;
+      case "upload":
+        fileInputRef.current?.click();
+        break;
+      case "gmail":
+        // TODO: Implement Gmail integration
+        alert("Gmail integration coming soon!");
+        break;
+      case "wallet":
+        // TODO: Implement Google Wallet integration
+        alert("Google Wallet integration coming soon!");
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleCameraCapture = (imageData: string) => {
+    console.log("Captured image:", imageData);
+    // TODO: Process the captured image
+    // You can send it to your backend API or process it locally
+    navigate("/processing", { state: { imageData } });
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageData = reader.result as string;
+        console.log("Uploaded file:", imageData);
+        // TODO: Process the uploaded file
+        navigate("/processing", { state: { imageData } });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary-light/5 to-secondary-light/5">
-      {/* Header */}
-      <div className="px-6 pt-8 pb-6 flex items-center gap-4">
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary-light/5 to-secondary-light/5">
+        {/* Header */}
+        <div className="px-6 pt-8 pb-6 flex items-center gap-4">
         <Button 
           variant="ghost" 
           size="icon"
@@ -93,6 +134,24 @@ export default function AddReceipt() {
           </p>
         </Card>
       </div>
+
+      {/* Hidden file input for uploads */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.pdf"
+        className="hidden"
+        onChange={handleFileUpload}
+      />
     </div>
+
+    {/* Camera Modal */}
+    {showCamera && (
+      <CameraCapture
+        onCapture={handleCameraCapture}
+        onClose={() => setShowCamera(false)}
+      />
+    )}
+  </>
   );
 }

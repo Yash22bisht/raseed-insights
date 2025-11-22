@@ -1,8 +1,34 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, TrendingUp, TrendingDown, Receipt, ShoppingBag, Coffee, Home, Car, Zap } from "lucide-react";
+import {
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  Receipt,
+  ShoppingBag,
+  Coffee,
+  Home,
+  Car,
+  Zap,
+  Sparkles,
+  ArrowUpRight,
+  ChevronRight,
+  Wallet,
+  PieChart,
+  BarChart3,
+  User,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const spendingData = [
   { month: "Jan", amount: 4200 },
@@ -14,208 +40,500 @@ const spendingData = [
 ];
 
 const categories = [
-  { name: "Food & Dining", amount: 1240, percentage: 28, icon: Coffee, color: "hsl(var(--primary))" },
-  { name: "Grocery", amount: 980, percentage: 22, icon: ShoppingBag, color: "hsl(var(--secondary))" },
-  { name: "Transport", amount: 650, percentage: 15, icon: Car, color: "hsl(var(--warning))" },
-  { name: "Utilities", amount: 520, percentage: 12, icon: Zap, color: "hsl(var(--success))" },
-  { name: "Shopping", amount: 880, percentage: 20, icon: ShoppingBag, color: "hsl(250, 60%, 70%)" },
-  { name: "Others", amount: 130, percentage: 3, icon: Home, color: "hsl(var(--muted-foreground))" },
+  {
+    name: "Food & Dining",
+    amount: 1240,
+    percentage: 28,
+    icon: Coffee,
+    color: "hsl(var(--primary))",
+  },
+  {
+    name: "Grocery",
+    amount: 980,
+    percentage: 22,
+    icon: ShoppingBag,
+    color: "hsl(var(--secondary))",
+  },
+  {
+    name: "Transport",
+    amount: 650,
+    percentage: 15,
+    icon: Car,
+    color: "hsl(var(--warning))",
+  },
+  {
+    name: "Utilities",
+    amount: 520,
+    percentage: 12,
+    icon: Zap,
+    color: "hsl(var(--success))",
+  },
+  {
+    name: "Shopping",
+    amount: 880,
+    percentage: 20,
+    icon: ShoppingBag,
+    color: "hsl(250, 60%, 70%)",
+  },
+  {
+    name: "Others",
+    amount: 130,
+    percentage: 3,
+    icon: Home,
+    color: "hsl(var(--muted-foreground))",
+  },
 ];
 
 const recentReceipts = [
-  { id: 1, merchant: "Starbucks", amount: 24.50, date: "Today", category: "Food & Dining", icon: "☕" },
-  { id: 2, merchant: "Amazon", amount: 156.99, date: "Yesterday", category: "Shopping", icon: "📦" },
-  { id: 3, merchant: "Uber", amount: 18.20, date: "2 days ago", category: "Transport", icon: "🚗" },
+  {
+    id: 1,
+    merchant: "Starbucks",
+    amount: 24.5,
+    date: "Today",
+    category: "Food & Dining",
+    icon: "☕",
+  },
+  {
+    id: 2,
+    merchant: "Amazon",
+    amount: 156.99,
+    date: "Yesterday",
+    category: "Shopping",
+    icon: "📦",
+  },
+  {
+    id: 3,
+    merchant: "Uber",
+    amount: 18.2,
+    date: "2 days ago",
+    category: "Transport",
+    icon: "🚗",
+  },
 ];
 
 const insights = [
   {
     text: "Your grocery spending increased 12% from last month",
     type: "warning",
-    icon: TrendingUp
+    icon: TrendingUp,
   },
   {
     text: "You're on track to save ₹500 this month!",
     type: "success",
-    icon: TrendingDown
-  }
+    icon: TrendingDown,
+  },
 ];
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
+  const pieData = categories.map((cat, index) => ({
+    name: cat.name,
+    value: cat.amount,
+    color: cat.color,
+  }));
+
+  const COLORS = categories.map((c) => c.color);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary-light/5 to-secondary-light/5">
-      {/* Header */}
-      <div className="px-6 pt-8 pb-6 space-y-2">
-        <h1 className="text-3xl font-bold">Hello, Yash 👋</h1>
-        <p className="text-muted-foreground">Here's your spending summary</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50/30 to-cyan-50/30 dark:from-slate-950 dark:via-violet-950/20 dark:to-cyan-950/20">
+      {/* Animated Background Orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        />
+      </div>
+
+      {/* Header with enhanced design */}
+      <div className="relative px-6 pt-10 pb-8 space-y-1">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-violet-600 to-secondary">
+                Hello, Yash
+              </h1>
+              <span className="text-3xl animate-wave inline-block">👋</span>
+            </div>
+            <p className="text-muted-foreground flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Your financial overview
+            </p>
+          </div>
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Scrollable Content */}
-      <div className="px-6 pb-24 space-y-6">
-        {/* Monthly Overview Card */}
-        <Card className="glass-card p-6 space-y-4">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Spent This Month</p>
-              <h2 className="text-4xl font-bold mt-1">₹4,800</h2>
-              <div className="flex items-center gap-2 mt-2">
-                <TrendingUp className="w-4 h-4 text-success" />
-                <span className="text-sm text-success">8% from last month</span>
+      <div className="relative px-6 pb-32 space-y-6">
+        {/* Stats Overview Cards - Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Total Spent Card */}
+          <Card className="relative overflow-hidden bg-gradient-to-br from-primary to-violet-600 text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+            <div className="relative p-5 space-y-2">
+              <div className="flex items-center gap-2 text-white/80 text-xs font-medium">
+                <TrendingUp className="w-3.5 h-3.5" />
+                THIS MONTH
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold">₹4.8K</div>
+                <div className="flex items-center gap-1 text-sm text-white/90">
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  <span>+8% increase</span>
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Sparkline Chart */}
-          <div className="h-24 -mx-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={spendingData}>
-                <defs>
-                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <Tooltip 
-                  contentStyle={{ 
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '0.5rem'
-                  }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="amount" 
-                  stroke="hsl(var(--primary))" 
-                  fillOpacity={1} 
-                  fill="url(#colorAmount)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Category Breakdown */}
-        <Card className="glass-card p-6 space-y-4">
-          <h3 className="text-lg font-semibold">Category Breakdown</h3>
-          <div className="space-y-3">
-            {categories.map((category) => {
-              const Icon = category.icon;
-              return (
-                <div key={category.name} className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-8 h-8 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${category.color}20` }}
-                      >
-                        <Icon className="w-4 h-4" style={{ color: category.color }} />
-                      </div>
-                      <span className="font-medium">{category.name}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-semibold">₹{category.amount}</span>
-                      <span className="text-muted-foreground ml-2">{category.percentage}%</span>
-                    </div>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all"
-                      style={{ 
-                        width: `${category.percentage}%`,
-                        backgroundColor: category.color
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* Recent Receipts */}
-        <Card className="glass-card p-6 space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Latest Receipts</h3>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/receipts")}>
-              View All
-            </Button>
-          </div>
-          <div className="space-y-3">
-            {recentReceipts.map((receipt) => (
-              <div 
-                key={receipt.id}
-                onClick={() => navigate(`/receipt/${receipt.id}`)}
-                className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
-                  {receipt.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{receipt.merchant}</p>
-                  <p className="text-sm text-muted-foreground">{receipt.date} • {receipt.category}</p>
-                </div>
-                <div className="text-lg font-semibold">
-                  ₹{receipt.amount.toFixed(2)}
+          {/* Budget Remaining Card */}
+          <Card className="relative overflow-hidden bg-gradient-to-br from-secondary to-cyan-600 text-white shadow-xl border-0 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+            <div className="relative p-5 space-y-2">
+              <div className="flex items-center gap-2 text-white/80 text-xs font-medium">
+                <Wallet className="w-3.5 h-3.5" />
+                REMAINING
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold">₹5.2K</div>
+                <div className="flex items-center gap-1 text-sm text-white/90">
+                  <TrendingDown className="w-3.5 h-3.5" />
+                  <span>52% of budget</span>
                 </div>
               </div>
-            ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Spending Trend Chart - Enhanced */}
+        <Card className="glass-card shadow-xl border-0 overflow-hidden hover:shadow-2xl transition-all duration-300">
+          <div className="p-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold">Spending Trend</h3>
+                <p className="text-sm text-muted-foreground">Last 6 months</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:text-primary/80"
+              >
+                <PieChart className="w-4 h-4 mr-2" />
+                Details
+              </Button>
+            </div>
+
+            {/* Sparkline Chart */}
+            <div className="h-32 -mx-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={spendingData}>
+                  <defs>
+                    <linearGradient
+                      id="colorAmount"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor="hsl(var(--primary))"
+                        stopOpacity={0.4}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="hsl(var(--primary))"
+                        stopOpacity={0.05}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "0.75rem",
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="amount"
+                    stroke="hsl(var(--primary))"
+                    fillOpacity={1}
+                    fill="url(#colorAmount)"
+                    strokeWidth={3}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </Card>
 
-        {/* AI Insights */}
-        <Card className="glass-card p-6 space-y-4">
-          <h3 className="text-lg font-semibold">Smart Insights</h3>
-          <div className="space-y-3">
-            {insights.map((insight, index) => {
-              const Icon = insight.icon;
-              return (
-                <div 
-                  key={index}
-                  className={`flex items-start gap-3 p-4 rounded-xl ${
-                    insight.type === 'warning' 
-                      ? 'bg-warning/10 border border-warning/20' 
-                      : 'bg-success/10 border border-success/20'
-                  }`}
+        {/* Category Breakdown - Enhanced with Visual Pie Chart */}
+        <Card className="glass-card shadow-xl border-0 overflow-hidden hover:shadow-2xl transition-all duration-300">
+          <div className="p-6 space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold">Category Breakdown</h3>
+                <p className="text-sm text-muted-foreground">
+                  Where your money goes
+                </p>
+              </div>
+            </div>
+
+            {/* Mini Donut Chart */}
+            <div className="flex items-center justify-center -my-2">
+              <div className="w-48 h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RePieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </RePieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              {categories.map((category) => {
+                const Icon = category.icon;
+                return (
+                  <div
+                    key={category.name}
+                    className="group flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
+                        style={{ backgroundColor: `${category.color}20` }}
+                      >
+                        <Icon
+                          className="w-5 h-5"
+                          style={{ color: category.color }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm">
+                            {category.name}
+                          </span>
+                          <div className="text-right">
+                            <span className="font-bold text-sm">
+                              ₹{category.amount}
+                            </span>
+                            <span className="text-muted-foreground text-xs ml-2">
+                              {category.percentage}%
+                            </span>
+                          </div>
+                        </div>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-2">
+                          <div
+                            className="h-full rounded-full transition-all duration-500 ease-out"
+                            style={{
+                              width: `${category.percentage}%`,
+                              backgroundColor: category.color,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Card>
+
+        {/* Recent Receipts - Enhanced */}
+        <Card className="glass-card shadow-xl border-0 overflow-hidden hover:shadow-2xl transition-all duration-300">
+          <div className="p-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold">Latest Receipts</h3>
+                <p className="text-sm text-muted-foreground">
+                  Recent transactions
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/receipts")}
+                className="text-primary hover:text-primary/80 group"
+              >
+                View All
+                <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {recentReceipts.map((receipt, index) => (
+                <div
+                  key={receipt.id}
+                  onClick={() => navigate(`/receipt/${receipt.id}`)}
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/60 hover:to-muted/40 transition-all cursor-pointer border border-transparent hover:border-primary/20 hover:shadow-lg"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <Icon className={`w-5 h-5 mt-0.5 ${
-                    insight.type === 'warning' ? 'text-warning' : 'text-success'
-                  }`} />
-                  <p className="text-sm leading-relaxed">{insight.text}</p>
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
+                      {receipt.icon}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-success flex items-center justify-center">
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate text-base">
+                      {receipt.merchant}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {receipt.date} • {receipt.category}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold">
+                      ₹{receipt.amount.toFixed(2)}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all ml-auto" />
+                  </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        {/* AI Insights - Enhanced */}
+        <Card className="glass-card shadow-xl border-0 overflow-hidden hover:shadow-2xl transition-all duration-300">
+          <div className="p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Smart Insights</h3>
+                <p className="text-xs text-muted-foreground">
+                  AI-powered recommendations
+                </p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {insights.map((insight, index) => {
+                const Icon = insight.icon;
+                return (
+                  <div
+                    key={index}
+                    className={`group relative overflow-hidden flex items-start gap-4 p-5 rounded-2xl transition-all cursor-pointer hover:scale-[1.02] ${
+                      insight.type === "warning"
+                        ? "bg-gradient-to-r from-warning/15 to-warning/5 border border-warning/30 hover:border-warning/50 hover:shadow-lg hover:shadow-warning/20"
+                        : "bg-gradient-to-r from-success/15 to-success/5 border border-success/30 hover:border-success/50 hover:shadow-lg hover:shadow-success/20"
+                    }`}
+                  >
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                        insight.type === "warning"
+                          ? "bg-warning/20"
+                          : "bg-success/20"
+                      }`}
+                    >
+                      <Icon
+                        className={`w-6 h-6 ${
+                          insight.type === "warning"
+                            ? "text-warning"
+                            : "text-success"
+                        }`}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm leading-relaxed font-medium">
+                        {insight.text}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </Card>
       </div>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6">
-        <Button 
+      {/* Floating Action Button - Enhanced */}
+      <div className="fixed bottom-24 right-6 z-50">
+        <Button
           size="lg"
           onClick={() => navigate("/add-receipt")}
-          className="h-16 w-16 rounded-full gradient-primary shadow-elevated hover:shadow-card transition-all"
+          className="relative h-16 w-16 rounded-full bg-gradient-to-r from-primary via-violet-600 to-secondary shadow-2xl hover:shadow-primary/50 transition-all hover:scale-110 border-0 group overflow-hidden"
         >
-          <Plus className="w-8 h-8" />
+          <div className="absolute inset-0 bg-white/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
+          <Plus className="w-8 h-8 relative z-10 group-hover:rotate-90 transition-transform duration-300" />
         </Button>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 glass-surface border-t border-border/50 px-6 py-4">
-        <div className="flex justify-around items-center max-w-lg mx-auto">
-          <Button variant="ghost" size="sm" className="flex-col h-auto py-2 text-primary">
+      {/* Bottom Navigation - Enhanced with 5 items */}
+      <div className="fixed bottom-0 left-0 right-0 glass-surface border-t border-border/50 px-4 py-4 backdrop-blur-xl bg-background/80 shadow-2xl z-40">
+        <div className="flex justify-between items-end max-w-lg mx-auto relative">
+          {/* Home */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-col h-auto py-2 px-4 rounded-2xl text-primary bg-primary/10 hover:bg-primary/20 transition-all"
+          >
             <Home className="w-5 h-5 mb-1" />
-            <span className="text-xs">Home</span>
+            <span className="text-xs font-semibold">Home</span>
           </Button>
-          <Button variant="ghost" size="sm" className="flex-col h-auto py-2" onClick={() => navigate("/receipts")}>
+
+          {/* Receipts */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-col h-auto py-2 px-4 rounded-2xl hover:bg-muted/50 transition-all"
+            onClick={() => navigate("/receipts")}
+          >
             <Receipt className="w-5 h-5 mb-1" />
             <span className="text-xs">Receipts</span>
           </Button>
-          <Button variant="ghost" size="sm" className="flex-col h-auto py-2" onClick={() => navigate("/add-receipt")}>
-            <Plus className="w-5 h-5 mb-1" />
-            <span className="text-xs">Add</span>
+
+          {/* Add Button - Center with elevation */}
+          <div className="absolute left-1/2 -translate-x-1/2 -top-10">
+            <Button
+              size="lg"
+              onClick={() => navigate("/add-receipt")}
+              className="relative h-20 w-20 rounded-full bg-gradient-to-r from-primary via-violet-600 to-secondary shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgba(124,58,237,0.5)] transition-all hover:scale-110 border-[6px] border-background group overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
+              <Plus className="w-24 h-24 relative z-10 group-hover:rotate-90 transition-transform duration-300 stroke-[3]" />
+            </Button>
+          </div>
+
+          {/* Analytics */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-col h-auto py-2 px-4 rounded-2xl hover:bg-muted/50 transition-all"
+            onClick={() => navigate("/analytics")}
+          >
+            <BarChart3 className="w-5 h-5 mb-1" />
+            <span className="text-xs">Analytics</span>
+          </Button>
+
+          {/* Profile */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-col h-auto py-2 px-4 rounded-2xl hover:bg-muted/50 transition-all"
+            onClick={() => navigate("/profile")}
+          >
+            <User className="w-5 h-5 mb-1" />
+            <span className="text-xs">Profile</span>
           </Button>
         </div>
       </div>

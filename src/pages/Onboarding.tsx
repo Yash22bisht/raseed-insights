@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Camera, Brain, TrendingUp, Wallet } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const features = [
   {
@@ -47,9 +48,12 @@ export default function Onboarding() {
       {/* Header */}
       <div className="flex justify-between items-center p-6">
         <div className="text-2xl font-bold gradient-text">Raseed</div>
-        <Button variant="ghost" onClick={handleSkip} className="text-muted-foreground">
-          Skip
-        </Button>
+        <div className="flex gap-2 items-center">
+          <ThemeToggle />
+          <Button variant="ghost" onClick={handleSkip} className="text-muted-foreground">
+            Skip
+          </Button>
+        </div>
       </div>
 
       {/* Content */}

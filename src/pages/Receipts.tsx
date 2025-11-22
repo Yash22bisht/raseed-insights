@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, Filter, Grid3x3, List } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const receipts = [
   { id: 1, merchant: "Starbucks", amount: 24.50, date: "Today", category: "Food & Dining", icon: "☕" },
@@ -47,6 +48,7 @@ export default function Receipts() {
             </div>
           </div>
           <div className="flex gap-2">
+            <ThemeToggle />
             <Button 
               variant={viewMode === "list" ? "default" : "ghost"}
               size="icon"
