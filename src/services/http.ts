@@ -12,9 +12,8 @@ export const http = axios.create({
 // Attach JWT
 http.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
-  if (token) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+  if (token && config.headers) {
+    (config.headers as any).Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -55,8 +54,8 @@ http.interceptors.response.use(
       const token = await refreshing;
       refreshing = null;
       if (token) {
-        original.headers = original.headers ?? {};
-        (original.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+        original.headers = (original.headers ?? {}) as any;
+        (original.headers as any).Authorization = `Bearer ${token}`;
         return http(original);
       }
     }
