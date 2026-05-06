@@ -30,8 +30,12 @@ import {
   Cell,
 } from "recharts";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useDashboard } from "@/hooks/useDashboard";
+import { useAuthStore } from "@/store/authStore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
 
-const spendingData = [
+const fallbackSpendingData = [
   { month: "Jan", amount: 4200 },
   { month: "Feb", amount: 3800 },
   { month: "Mar", amount: 4500 },
@@ -40,7 +44,7 @@ const spendingData = [
   { month: "Jun", amount: 4800 },
 ];
 
-const categories = [
+const fallbackCategories = [
   {
     name: "Food & Dining",
     amount: 1240,
@@ -85,7 +89,7 @@ const categories = [
   },
 ];
 
-const recentReceipts = [
+const fallbackRecentReceipts = [
   {
     id: 1,
     merchant: "Starbucks",
@@ -112,7 +116,7 @@ const recentReceipts = [
   },
 ];
 
-const insights = [
+const fallbackInsights = [
   {
     text: "Your grocery spending increased 12% from last month",
     type: "warning",
@@ -125,8 +129,71 @@ const insights = [
   },
 ];
 
+const CATEGORY_ICONS: Record<string, any> = {
+  "food & dining": Coffee,
+  food: Coffee,
+  grocery: ShoppingBag,
+  groceries: ShoppingBag,
+  transport: Car,
+  transportation: Car,
+  utilities: Zap,
+  shopping: ShoppingBag,
+  home: Home,
+};
+const PALETTE = [
+  "hsl(var(--primary))",
+  "hsl(var(--secondary))",
+  "hsl(var(--warning))",
+  "hsl(var(--success))",
+  "hsl(250, 60%, 70%)",
+  "hsl(var(--muted-foreground))",
+];
+
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { summary, insights: aiInsights, recent, loading } = useDashboard();
+  const user = useAuthStore((s) => s.user);
+
+  const categories = useMemo(() => {
+    if (summary?.categories?.length) {
+      const total = summary.categories.reduce((s, c) => s + c.amount, 0) || 1;
+      return summary.categories.map((c, i) => ({
+        name: c.name,
+        amount: c.amount,
+        percentage: c.percentage ?? Math.round((c.amount / total) * 100),
+        icon: CATEGORY_ICONS[c.name?.toLowerCase()] ?? ShoppingBag,
+        color: PALETTE[i % PALETTE.length],
+      }));
+    }
+    return fallbackCategories;
+  }, [summary]);
+
+  const spendingData = summary?.trend?.length
+    ? summary.trend.map((t) => ({ month: t.label, amount: t.amount }))
+    : fallbackSpendingData;
+
+  const recentReceipts = recent.length
+    ? recent.slice(0, 3).map((r) => ({
+        id: r.id,
+        merchant: r.storeName || r.vendor || r.merchant || "Receipt",
+        amount: Number(r.total ?? r.amount ?? 0),
+        date: r.date ? new Date(r.date).toLocaleDateString() : "",
+        category: r.category || "Uncategorized",
+        icon: "🧾",
+      }))
+    : fallbackRecentReceipts;
+
+  const insights = aiInsights.length
+    ? aiInsights.slice(0, 3).map((i) => ({
+        text: i.description || i.title,
+        type: i.type === "warning" ? "warning" : "success",
+        icon: i.type === "warning" ? TrendingUp : TrendingDown,
+      }))
+    : fallbackInsights;
+
+  const totalSpent = summary?.totalSpent ?? 4800;
+  const remaining = summary?.remaining ?? 5200;
+  const changePct = summary?.changePct ?? 8;
 
   const pieData = categories.map((cat, index) => ({
     name: cat.name,
@@ -153,7 +220,7 @@ export default function Dashboard() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-violet-600 to-secondary">
-                Hello, Yash
+                Hello, {user?.name?.split(" ")[0] || "there"}
               </h1>
               <span className="text-3xl animate-wave inline-block">👋</span>
             </div>
@@ -179,10 +246,14 @@ export default function Dashboard() {
                 THIS MONTH
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">₹4.8K</div>
+                {loading ? (
+                  <Skeleton className="h-9 w-24 bg-white/20" />
+                ) : (
+                  <div className="text-3xl font-bold">₹{(totalSpent/1000).toFixed(1)}K</div>
+                )}
                 <div className="flex items-center gap-1 text-sm text-white/90">
                   <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>+8% increase</span>
+                  <span>{changePct >= 0 ? "+" : ""}{changePct}% vs last</span>
                 </div>
               </div>
             </div>
@@ -197,10 +268,14 @@ export default function Dashboard() {
                 REMAINING
               </div>
               <div className="space-y-1">
-                <div className="text-3xl font-bold">₹5.2K</div>
+                {loading ? (
+                  <Skeleton className="h-9 w-24 bg-white/20" />
+                ) : (
+                  <div className="text-3xl font-bold">₹{(remaining/1000).toFixed(1)}K</div>
+                )}
                 <div className="flex items-center gap-1 text-sm text-white/90">
                   <TrendingDown className="w-3.5 h-3.5" />
-                  <span>52% of budget</span>
+                  <span>Budget left</span>
                 </div>
               </div>
             </div>
