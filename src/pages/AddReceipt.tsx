@@ -4,7 +4,8 @@ import { Camera, Upload, Mail, Wallet, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { CameraCapture } from "@/components/camera-capture";
-import { uploadReceipt } from "@/lib/api";
+import { uploadReceipt } from "@/services/receipts";
+import { toast } from "sonner";
 
 const inputMethods = [
   {
@@ -75,8 +76,8 @@ export default function AddReceipt() {
 
       const uploaded = await uploadReceipt(file);
       navigate("/processing", { state: { receiptId: uploaded.id } });
-    } catch (error) {
-      alert("Failed to upload captured receipt. Please try again.");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to upload receipt");
     } finally {
       setIsUploading(false);
       setShowCamera(false);
@@ -93,8 +94,8 @@ export default function AddReceipt() {
       setIsUploading(true);
       const uploaded = await uploadReceipt(file);
       navigate("/processing", { state: { receiptId: uploaded.id } });
-    } catch (error) {
-      alert("Failed to upload receipt. Please try again.");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to upload receipt");
     } finally {
       setIsUploading(false);
     }
