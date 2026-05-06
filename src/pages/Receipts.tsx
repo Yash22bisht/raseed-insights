@@ -7,7 +7,9 @@ import { ArrowLeft, Search, Filter, Grid3x3, List } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { fetchReceipts, type ReceiptItem } from "@/lib/api";
+import { getReceiptHistory, type Receipt } from "@/services/receipts";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type UiReceipt = {
   id: string;
@@ -18,13 +20,19 @@ type UiReceipt = {
   icon: string;
 };
 
-function mapReceiptToUi(receipt: ReceiptItem): UiReceipt {
+function mapReceiptToUi(receipt: Receipt): UiReceipt {
   return {
     id: receipt.id,
-    merchant: receipt.extractedVendor || receipt.fileName || "Unknown Merchant",
-    amount: Number(receipt.extractedAmount || 0),
-    date: new Date(receipt.uploadedAt).toLocaleDateString(),
-    category: receipt.status || "Uncategorized",
+    merchant:
+      receipt.storeName ||
+      receipt.vendor ||
+      receipt.merchant ||
+      "Unknown Merchant",
+    amount: Number(receipt.total ?? receipt.amount ?? 0),
+    date: new Date(
+      receipt.date || receipt.uploadedAt || Date.now(),
+    ).toLocaleDateString(),
+    category: receipt.category || "Uncategorized",
     icon: "🧾",
   };
 }
@@ -40,9 +48,10 @@ export default function Receipts() {
     const loadReceipts = async () => {
       try {
         setIsLoading(true);
-        const result = await fetchReceipts(1, 50);
+        const result = await getReceiptHistory({ page: 1, pageSize: 50 });
         setReceipts((result.data || []).map(mapReceiptToUi));
-      } catch (error) {
+      } catch (error: any) {
+        toast.error(error?.response?.data?.message || "Failed to load receipts");
         setReceipts([]);
       } finally {
         setIsLoading(false);
