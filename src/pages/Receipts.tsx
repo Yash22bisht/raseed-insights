@@ -127,7 +127,17 @@ export default function Receipts() {
       <div className="px-6 pt-6">
         {viewMode === "list" ? (
           <div className="space-y-3">
-            {isLoading && <p className="text-sm text-muted-foreground">Loading receipts...</p>}
+            {isLoading &&
+              Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full rounded-2xl" />
+              ))}
+            {!isLoading && filteredReceipts.length === 0 && (
+              <Card className="glass-card p-10 text-center text-muted-foreground">
+                <div className="text-5xl mb-3">🧾</div>
+                <p className="font-medium">No receipts yet</p>
+                <p className="text-sm">Upload one to get started.</p>
+              </Card>
+            )}
             {filteredReceipts.map((receipt) => (
               <Card 
                 key={receipt.id}
