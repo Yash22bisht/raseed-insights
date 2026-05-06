@@ -13,6 +13,9 @@ import Receipts from "./pages/Receipts";
 import AIChat from "./pages/AIChat";
 import Profile from "./pages/Profile";
 import Analytics from "./pages/Analytics";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,14 +29,16 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Onboarding />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/add-receipt" element={<AddReceipt />} />
-            <Route path="/processing" element={<Processing />} />
-            <Route path="/receipt/:id" element={<ReceiptDetail />} />
-            <Route path="/receipts" element={<Receipts />} />
-            <Route path="/ai-chat" element={<AIChat />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/add-receipt" element={<ProtectedRoute><AddReceipt /></ProtectedRoute>} />
+            <Route path="/processing" element={<ProtectedRoute><Processing /></ProtectedRoute>} />
+            <Route path="/receipt/:id" element={<ProtectedRoute><ReceiptDetail /></ProtectedRoute>} />
+            <Route path="/receipts" element={<ProtectedRoute><Receipts /></ProtectedRoute>} />
+            <Route path="/ai-chat" element={<ProtectedRoute><AIChat /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
