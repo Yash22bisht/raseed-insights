@@ -4,6 +4,7 @@ import { Camera, Upload, Mail, Wallet, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { CameraCapture } from "@/components/camera-capture";
+import { uploadReceipt } from "@/lib/api";
 
 const inputMethods = [
   {
@@ -39,6 +40,7 @@ const inputMethods = [
 export default function AddReceipt() {
   const navigate = useNavigate();
   const [showCamera, setShowCamera] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleMethodClick = (action: string) => {
@@ -62,24 +64,39 @@ export default function AddReceipt() {
     }
   };
 
-  const handleCameraCapture = (imageData: string) => {
-    console.log("Captured image:", imageData);
-    // TODO: Process the captured image
-    // You can send it to your backend API or process it locally
-    navigate("/processing", { state: { imageData } });
+  const handleCameraCapture = async (imageData: string) => {
+    try {
+      setIsUploading(true);
+      const res = await fetch(imageData);
+      const blob = await res.blob();
+      const file = new File([blob], `camera-capture-${Date.now()}.jpg`, {
+        type: "image/jpeg",
+      });
+
+      const uploaded = await uploadReceipt(file);
+      navigate("/processing", { state: { receiptId: uploaded.id } });
+    } catch (error) {
+      alert("Failed to upload captured receipt. Please try again.");
+    } finally {
+      setIsUploading(false);
+      setShowCamera(false);
+    }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const imageData = reader.result as string;
-        console.log("Uploaded file:", imageData);
-        // TODO: Process the uploaded file
-        navigate("/processing", { state: { imageData } });
-      };
-      reader.readAsDataURL(file);
+    if (!file) {
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const uploaded = await uploadReceipt(file);
+      navigate("/processing", { state: { receiptId: uploaded.id } });
+    } catch (error) {
+      alert("Failed to upload receipt. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -109,8 +126,9 @@ export default function AddReceipt() {
           return (
             <Card 
               key={method.action}
+              aria-disabled={isUploading}
               onClick={() => handleMethodClick(method.action)}
-              className="glass-card p-6 cursor-pointer hover:shadow-elevated transition-all active:scale-[0.98]"
+              className={`glass-card p-6 cursor-pointer hover:shadow-elevated transition-all active:scale-[0.98] ${isUploading ? "opacity-60 pointer-events-none" : ""}`}
             >
               <div className="flex items-center gap-4">
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${method.gradient} flex items-center justify-center shadow-card`}>
@@ -130,7 +148,9 @@ export default function AddReceipt() {
       <div className="px-6 pb-6">
         <Card className="glass-card p-4 bg-primary/5 border-primary/20">
           <p className="text-sm text-center text-muted-foreground">
-            All receipts are securely processed and stored with end-to-end encryption
+            {isUploading
+              ? "Uploading receipt to backend..."
+              : "All receipts are securely processed and stored with end-to-end encryption"}
           </p>
         </Card>
       </div>
@@ -139,7 +159,7 @@ export default function AddReceipt() {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,.pdf"
+        accept="image/*"
         className="hidden"
         onChange={handleFileUpload}
       />

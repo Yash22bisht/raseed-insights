@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, Calendar, CreditCard, Share2, Download, Edit3, TrendingUp, Shield } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
+import { useEffect, useMemo, useState } from "react";
+import { fetchReceiptById, type ReceiptItem } from "@/lib/api";
 
 const receiptData = {
   merchant: "Starbucks Coffee",
@@ -42,6 +44,60 @@ const receiptData = {
 export default function ReceiptDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [receipt, setReceipt] = useState<ReceiptItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadReceipt = async () => {
+      if (!id) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const data = await fetchReceiptById(id);
+        setReceipt(data);
+      } catch (error) {
+        setReceipt(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadReceipt();
+  }, [id]);
+
+  const resolvedData = useMemo(() => {
+    if (!receipt) {
+      return receiptData;
+    }
+
+    return {
+      merchant: receipt.extractedVendor || receipt.fileName || "Unknown Vendor",
+      merchantIcon: "🧾",
+      date: receipt.extractedDate
+        ? new Date(receipt.extractedDate).toLocaleDateString()
+        : new Date(receipt.uploadedAt).toLocaleDateString(),
+      time: new Date(receipt.uploadedAt).toLocaleTimeString(),
+      location: "N/A",
+      category: receipt.status || "Uncategorized",
+      paymentMethod: "Unknown",
+      items: [
+        {
+          name: receipt.fileName,
+          quantity: 1,
+          price: Number(receipt.extractedAmount || 0),
+          category: receipt.status || "Receipt",
+        },
+      ],
+      subtotal: Number(receipt.extractedAmount || 0),
+      tax: 0,
+      discount: 0,
+      total: Number(receipt.extractedAmount || 0),
+      insights: receiptData.insights,
+    };
+  }, [receipt]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary-light/5 to-secondary-light/5 pb-24">
@@ -74,27 +130,27 @@ export default function ReceiptDetail() {
         <Card className="glass-card p-6">
           <div className="flex items-start gap-4">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl">
-              {receiptData.merchantIcon}
+              {resolvedData.merchantIcon}
             </div>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">{receiptData.merchant}</h1>
+              <h1 className="text-2xl font-bold">{resolvedData.merchant}</h1>
               <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  <span>{receiptData.date}</span>
+                  <span>{resolvedData.date}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  <span>{receiptData.location}</span>
+                  <span>{resolvedData.location}</span>
                 </div>
               </div>
               <div className="flex gap-2 mt-3">
                 <Badge className="bg-primary/10 text-primary border-primary/20">
-                  {receiptData.category}
+                  {resolvedData.category}
                 </Badge>
                 <Badge className="bg-secondary/10 text-secondary border-secondary/20">
                   <CreditCard className="w-3 h-3 mr-1" />
-                  {receiptData.paymentMethod}
+                  {resolvedData.paymentMethod}
                 </Badge>
               </div>
             </div>
@@ -106,7 +162,7 @@ export default function ReceiptDetail() {
           <div className="flex items-center justify-between text-primary-foreground">
             <div>
               <p className="text-sm opacity-90">Total Amount</p>
-              <p className="text-4xl font-bold mt-1">₹{receiptData.total.toFixed(2)}</p>
+              <p className="text-4xl font-bold mt-1">₹{resolvedData.total.toFixed(2)}</p>
             </div>
             <Button 
               variant="secondary"
@@ -122,7 +178,7 @@ export default function ReceiptDetail() {
         <Card className="glass-card p-6 space-y-4">
           <h3 className="font-semibold text-lg">Items Purchased</h3>
           <div className="space-y-3">
-            {receiptData.items.map((item, index) => (
+            {resolvedData.items.map((item, index) => (
               <div key={index} className="flex items-start justify-between p-3 rounded-lg bg-muted/30">
                 <div className="flex-1">
                   <p className="font-medium">{item.name}</p>
@@ -146,20 +202,20 @@ export default function ReceiptDetail() {
           <div className="space-y-2 pt-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>₹{receiptData.subtotal.toFixed(2)}</span>
+              <span>₹{resolvedData.subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tax (9%)</span>
-              <span>₹{receiptData.tax.toFixed(2)}</span>
+              <span>₹{resolvedData.tax.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm text-success">
               <span>Discount</span>
-              <span>-₹{receiptData.discount.toFixed(2)}</span>
+              <span>-₹{resolvedData.discount.toFixed(2)}</span>
             </div>
             <Separator />
             <div className="flex justify-between font-semibold text-lg">
               <span>Total</span>
-              <span>₹{receiptData.total.toFixed(2)}</span>
+              <span>₹{resolvedData.total.toFixed(2)}</span>
             </div>
           </div>
         </Card>
@@ -168,7 +224,7 @@ export default function ReceiptDetail() {
         <Card className="glass-card p-6 space-y-4">
           <h3 className="font-semibold text-lg">Smart Insights</h3>
           <div className="space-y-3">
-            {receiptData.insights.map((insight, index) => {
+            {resolvedData.insights.map((insight, index) => {
               const Icon = insight.icon;
               return (
                 <div 
@@ -189,6 +245,9 @@ export default function ReceiptDetail() {
           </div>
         </Card>
       </div>
+      {isLoading && (
+        <div className="px-6 py-3 text-sm text-muted-foreground">Loading receipt details...</div>
+      )}
     </div>
   );
 }

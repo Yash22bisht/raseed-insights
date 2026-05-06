@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,10 +37,25 @@ import {
   Area,
   AreaChart,
 } from "recharts";
+import { getAiInsights } from "@/lib/api";
 
 const Analytics = () => {
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
+  const [aiInsights, setAiInsights] = useState<any>(null);
+
+  useEffect(() => {
+    const loadInsights = async () => {
+      try {
+        const result = await getAiInsights();
+        setAiInsights(result);
+      } catch (error) {
+        setAiInsights(null);
+      }
+    };
+
+    void loadInsights();
+  }, []);
 
   // Mock data
   const monthlyTrend = [
@@ -368,6 +384,13 @@ const Analytics = () => {
             <CardDescription>Smart recommendations for you</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            {aiInsights?.summary && (
+              <div className="p-4 rounded-xl bg-background/50 border border-border/50">
+                <p className="text-sm">
+                  <span className="font-semibold text-primary">🧠 AI Summary:</span> {aiInsights.summary}
+                </p>
+              </div>
+            )}
             <div className="p-4 rounded-xl bg-background/50 border border-border/50">
               <p className="text-sm">
                 <span className="font-semibold text-primary">💡 Savings Opportunity:</span> Your

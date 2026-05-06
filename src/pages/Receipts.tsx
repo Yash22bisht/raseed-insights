@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,22 +7,50 @@ import { ArrowLeft, Search, Filter, Grid3x3, List } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { fetchReceipts, type ReceiptItem } from "@/lib/api";
 
-const receipts = [
-  { id: 1, merchant: "Starbucks", amount: 24.50, date: "Today", category: "Food & Dining", icon: "☕" },
-  { id: 2, merchant: "Amazon", amount: 156.99, date: "Yesterday", category: "Shopping", icon: "📦" },
-  { id: 3, merchant: "Uber", amount: 18.20, date: "2 days ago", category: "Transport", icon: "🚗" },
-  { id: 4, merchant: "Blinkit", amount: 847.30, date: "3 days ago", category: "Grocery", icon: "🛒" },
-  { id: 5, merchant: "Swiggy", amount: 385.50, date: "4 days ago", category: "Food & Dining", icon: "🍕" },
-  { id: 6, merchant: "Shell Petrol", amount: 2150.00, date: "5 days ago", category: "Transport", icon: "⛽" },
-  { id: 7, merchant: "Zara", amount: 4299.00, date: "1 week ago", category: "Shopping", icon: "👗" },
-  { id: 8, merchant: "BookMyShow", amount: 720.00, date: "1 week ago", category: "Entertainment", icon: "🎬" },
-];
+type UiReceipt = {
+  id: string;
+  merchant: string;
+  amount: number;
+  date: string;
+  category: string;
+  icon: string;
+};
+
+function mapReceiptToUi(receipt: ReceiptItem): UiReceipt {
+  return {
+    id: receipt.id,
+    merchant: receipt.extractedVendor || receipt.fileName || "Unknown Merchant",
+    amount: Number(receipt.extractedAmount || 0),
+    date: new Date(receipt.uploadedAt).toLocaleDateString(),
+    category: receipt.status || "Uncategorized",
+    icon: "🧾",
+  };
+}
 
 export default function Receipts() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [searchQuery, setSearchQuery] = useState("");
+  const [receipts, setReceipts] = useState<UiReceipt[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadReceipts = async () => {
+      try {
+        setIsLoading(true);
+        const result = await fetchReceipts(1, 50);
+        setReceipts((result.data || []).map(mapReceiptToUi));
+      } catch (error) {
+        setReceipts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadReceipts();
+  }, []);
 
   const filteredReceipts = receipts.filter(receipt =>
     receipt.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -89,6 +118,7 @@ export default function Receipts() {
       <div className="px-6 pt-6">
         {viewMode === "list" ? (
           <div className="space-y-3">
+            {isLoading && <p className="text-sm text-muted-foreground">Loading receipts...</p>}
             {filteredReceipts.map((receipt) => (
               <Card 
                 key={receipt.id}

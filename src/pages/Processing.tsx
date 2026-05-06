@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
 const processingSteps = [
@@ -11,15 +11,18 @@ const processingSteps = [
 
 export default function Processing() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    const receiptId = (location.state as { receiptId?: string } | null)?.receiptId;
+
     // Simulate processing with a timeout
     const timer = setTimeout(() => {
-      navigate("/receipt/1");
+      navigate(`/receipt/${receiptId || "1"}`);
     }, 4000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [location.state, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary-light/10 to-secondary-light/10">

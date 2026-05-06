@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Mic, Paperclip, ArrowLeft, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { askAiAssistant } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ const AIChat = () => {
     },
   ]);
   const [input, setInput] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
@@ -38,7 +40,7 @@ const AIChat = () => {
     }
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage: Message = {
@@ -51,16 +53,29 @@ const AIChat = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      setIsSending(true);
+      const response = await askAiAssistant(userMessage.content);
+      const content = response.summary || JSON.stringify(response, null, 2);
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "I'm analyzing your request. In a full implementation, I would provide detailed insights about your spending patterns and receipts.",
+        content,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
-    }, 1000);
+    } catch (error) {
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I could not reach the AI backend right now. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -170,6 +185,7 @@ const AIChat = () => {
             </Button>
             <Button
               onClick={handleSend}
+              disabled={isSending}
               size="icon"
               className="bg-gradient-to-br from-primary to-secondary hover:opacity-90"
             >
